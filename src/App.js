@@ -14,7 +14,6 @@ const App = () => {
 
   return (
     <div className="app">
-      <header className="header">Phỏm Score Tracker</header>
       {!isGameStarted ? (
         <PlayerSelector onSelect={handleSelectPlayers} />
       ) : (

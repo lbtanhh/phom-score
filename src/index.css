@@ -100,9 +100,6 @@ th, td {
 }
 
 .input-container button {
-  background-color: #007bff;
-  color: white;
-  border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;

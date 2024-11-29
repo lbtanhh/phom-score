@@ -4,18 +4,18 @@ import { Button, Flex } from "antd";
 const specialButtons = [
   { label: "+ gà", type: "+gà" },
   { label: "- gà", type: "-gà" },
-  { label: "tứ quý", type: "tứ quý" },
+  { label: "Tứ Quý", type: "Tứ Quý" },
   { label: "2K", type: "2K" },
   { label: "3K", type: "3K" },
   { label: "4K", type: "4K" },
   { label: "Ù", type: "Ù" },
-  { label: "ù tròn", type: "ù tròn" },
-  { label: "ù khan", type: "ù khan" },
-  { label: "nhất", type: "nhất" },
-  { label: "nhì", type: "nhì" },
-  { label: "ba", type: "ba" },
-  { label: "chót", type: "chót" },
-  { label: "cháy", type: "cháy" },
+  { label: "Ù tròn", type: "Ù tròn" },
+  { label: "Ù khan", type: "Ù khan" },
+  { label: "Nhất", type: "Nhất" },
+  { label: "Nhì", type: "Nhì" },
+  { label: "Ba", type: "Ba" },
+  { label: "Chót", type: "Chót" },
+  { label: "Cháy", type: "Cháy" },
 ];
 
 const ScoreTable = ({ players }) => {
@@ -24,10 +24,6 @@ const ScoreTable = ({ players }) => {
   const [rounds, setRounds] = useState([]);
   const [isEditingNames, setIsEditingNames] = useState(false);
 
-  const handleSaveNames = (newNames) => {
-    setPlayerNames(newNames);
-    setIsEditingNames(false);
-  };
 
   const handleAddRound = (roundScores) => {
     const updatedScores = scores.map((score, idx) => score + roundScores[idx]);
@@ -67,26 +63,9 @@ const ScoreTable = ({ players }) => {
       <table>
         <thead>
           <tr>
-            <th>Ván</th>
-            {isEditingNames
-              ? playerNames.map((name, idx) => (
-                  <th key={idx}>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => {
-                        const updatedNames = [...playerNames];
-                        updatedNames[idx] = e.target.value;
-                        setPlayerNames(updatedNames);
-                      }}
-                    />
-                  </th>
-                ))
-              : playerNames.map((name, idx) => <th key={idx}>{name}</th>)}
+            <th></th>
+            {playerNames.map((name, idx) => <th key={idx}>{name}</th>)}
             <th>
-              <Button onClick={() => setIsEditingNames(!isEditingNames)}>
-                {isEditingNames ? "Lưu tên" : "Sửa tên"}
-              </Button>
             </th>
           </tr>
         </thead>
@@ -150,7 +129,7 @@ const RoundRow = ({ index, round, players, onEdit, onDelete }) => {
         {isEditing ? (
           <Button onClick={handleSave}>Lưu</Button>
         ) : (
-          <Button onClick={() => onDelete(index)} style={{ marginLeft: 8 }}>
+          <Button onClick={() => onDelete(index)} style={{ marginLeft: 8 }} color="danger" variant="solid">
           Xóa
         </Button>
         )}
@@ -178,7 +157,7 @@ const RoundInput = ({ players, onSubmit }) => {
       case "-gà":
         updatedScores[activePlayer] -= 1;
         break;
-      case "tứ quý":
+      case "Tứ Quý":
         updatedScores[activePlayer] += 3;
         updatedScores.forEach((_, idx) => {
           if (idx !== activePlayer) updatedScores[idx] -= 1;
@@ -208,32 +187,32 @@ const RoundInput = ({ players, onSubmit }) => {
           if (idx !== activePlayer) updatedScores[idx] -= 5;
         });
         break;
-      case "ù tròn":
+      case "Ù tròn":
         updatedScores[activePlayer] += 30;
         updatedScores.forEach((_, idx) => {
           if (idx !== activePlayer) updatedScores[idx] -= 10;
         });
         break;
-      case "ù khan":
+      case "Ù khan":
         updatedScores[activePlayer] += 12;
         updatedScores.forEach((_, idx) => {
           if (idx !== activePlayer) updatedScores[idx] -= 4;
         });
         break;
-      case "cháy":
+      case "Cháy":
         updatedScores[activePlayer] -= 4;
         break;
   
-      case "nhất":
+      case "Nhất":
         updatedScores[activePlayer] += 6
         break;
-      case "nhì":
+      case "Nhì":
         updatedScores[activePlayer] -= 1;
         break;
-      case "ba":
+      case "Ba":
         updatedScores[activePlayer] -= 2;
         break;
-      case "chót":
+      case "Chót":
         updatedScores[activePlayer] -= 3;
         break;
       default:
@@ -272,7 +251,7 @@ const RoundInput = ({ players, onSubmit }) => {
   return (
     <div>
       {/* Button Nhập điểm bên ngoài popup */}
-      <Button onClick={() => setIsPopupOpen(true)} style={{ marginTop: 10 }}>
+      <Button onClick={() => setIsPopupOpen(true)} style={{ marginTop: 10 }} color="primary" variant="solid">
         Nhập điểm
       </Button>
       {isPopupOpen && (
@@ -294,13 +273,15 @@ const RoundInput = ({ players, onSubmit }) => {
               >
                 <label>{player}</label>
                 <div className="input-container">
-                <Button onClick={() => handleIncrement(idx, -1)}>-</Button>
+                <Button onClick={() => handleIncrement(idx, -5)} color="primary" variant="outlined">-5</Button>
+                <Button onClick={() => handleIncrement(idx, -1)} color="primary" variant="outlined">-</Button>
                   <input
                     type="text"
                     value={roundScores[idx]}
                     onChange={(e) => handleChange(idx, e.target.value)}
                   />
-                  <Button onClick={() => handleIncrement(idx, 1)}>+</Button>
+                  <Button onClick={() => handleIncrement(idx, 1)} color="primary" variant="outlined">+</Button>
+                  <Button onClick={() => handleIncrement(idx, 5)} color="primary" variant="outlined">+5</Button>
                 </div>
               </div>
             ))}
@@ -321,15 +302,16 @@ const RoundInput = ({ players, onSubmit }) => {
 
             <div style={{ marginTop: "20px" }}>
               <Button
+                type="primary"
                 onClick={handleSubmit}
                 style={{ marginRight: 10, marginTop: 10 }}
               >
                 Xác nhận
               </Button>
-              <Button onClick={handleReset} style={{ marginRight: 10 }}>
+              <Button onClick={handleReset} style={{ marginRight: 10 }} color="primary" variant="outlined">
                 Reset
               </Button>
-              <Button onClick={() => setIsPopupOpen(false)}>Hủy</Button>
+              <Button color="danger" variant="solid" onClick={() => setIsPopupOpen(false)}>Hủy</Button>
             </div>
           </div>
         </div>
