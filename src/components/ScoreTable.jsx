@@ -225,7 +225,6 @@ const RoundInput = ({ players, onSubmit }) => {
         break;
   
       case "nhất":
-        setNhatPlayer(activePlayer); // Gán người chơi "nhất"
         updatedScores[activePlayer] += 6
         break;
       case "nhì":
@@ -240,20 +239,15 @@ const RoundInput = ({ players, onSubmit }) => {
       default:
         break;
     }
-  
-    // Cập nhật điểm của "nhất" nếu đã được đặt
-    if (nhatPlayer !== null) {
-      const burnedPlayers = updatedScores.filter((score) => score === -4).length;
-      let bonus = 6;
-      if (burnedPlayers === 1) bonus = 7;
-      else if (burnedPlayers === 2) bonus = 9;
-      else if (burnedPlayers === 3) bonus = 12;
-      updatedScores[nhatPlayer] = bonus;
-    }
-  
     setRoundScores(updatedScores);
   };
   
+
+    const handleIncrement = (index, amount) => {
+    const updatedScores = [...roundScores];
+    updatedScores[index] += amount;
+    setRoundScores(updatedScores);
+  };
   
 
   const handleChange = (index, value) => {
@@ -300,11 +294,13 @@ const RoundInput = ({ players, onSubmit }) => {
               >
                 <label>{player}</label>
                 <div className="input-container">
+                <Button onClick={() => handleIncrement(idx, -1)}>-</Button>
                   <input
                     type="text"
                     value={roundScores[idx]}
                     onChange={(e) => handleChange(idx, e.target.value)}
                   />
+                  <Button onClick={() => handleIncrement(idx, 1)}>+</Button>
                 </div>
               </div>
             ))}
