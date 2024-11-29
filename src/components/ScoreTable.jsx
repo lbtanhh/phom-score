@@ -10,8 +10,12 @@ const specialButtons = [
   { label: "4K", type: "4K" },
   { label: "Ù", type: "Ù" },
   { label: "ù tròn", type: "ù tròn" },
-  { label: "cháy", type: "cháy" },
   { label: "ù khan", type: "ù khan" },
+  { label: "nhất", type: "nhất" },
+  { label: "nhì", type: "nhì" },
+  { label: "ba", type: "ba" },
+  { label: "chót", type: "chót" },
+  { label: "cháy", type: "cháy" },
 ];
 
 const ScoreTable = ({ players }) => {
@@ -42,6 +46,18 @@ const ScoreTable = ({ players }) => {
     const updatedScores = players.map((_, idx) =>
       updatedRounds.reduce((total, round) => total + round[idx], 0)
     );
+    setScores(updatedScores);
+  };
+
+  const handleDeleteRound = (roundIndex) => {
+    const updatedRounds = rounds.filter((_, idx) => idx !== roundIndex);
+
+    // Recalculate total scores after deletion
+    const updatedScores = players.map((_, idx) =>
+      updatedRounds.reduce((total, round) => total + round[idx], 0)
+    );
+
+    setRounds(updatedRounds);
     setScores(updatedScores);
   };
 
@@ -82,6 +98,7 @@ const ScoreTable = ({ players }) => {
               round={round}
               players={players}
               onEdit={handleEditRound}
+              onDelete={handleDeleteRound}
             />
           ))}
           <tr className="total-row">
@@ -99,7 +116,8 @@ const ScoreTable = ({ players }) => {
   );
 };
 
-const RoundRow = ({ index, round, players, onEdit }) => {
+
+const RoundRow = ({ index, round, players, onEdit, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedScores, setEditedScores] = useState(round);
 
@@ -132,76 +150,111 @@ const RoundRow = ({ index, round, players, onEdit }) => {
         {isEditing ? (
           <Button onClick={handleSave}>Lưu</Button>
         ) : (
-          <Button onClick={() => setIsEditing(true)}>Sửa</Button>
+          <Button onClick={() => onDelete(index)} style={{ marginLeft: 8 }}>
+          Xóa
+        </Button>
         )}
+
       </td>
     </tr>
   );
 };
 
+
 const RoundInput = ({ players, onSubmit }) => {
   const [roundScores, setRoundScores] = useState(players.map(() => 0));
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [activePlayer, setActivePlayer] = useState(null); // Người chơi đang được chọn
+  const [nhatPlayer, setNhatPlayer] = useState(null);
 
-  const handleSpecialScore = (playerIndex, type) => {
+  const handleSpecialScore = (type) => {
+    if (activePlayer === null) return; // Không làm gì nếu chưa chọn người chơi
     const updatedScores = [...roundScores];
+  
     switch (type) {
       case "+gà":
-        updatedScores[playerIndex] += 1;
+        updatedScores[activePlayer] += 1;
         break;
       case "-gà":
-        updatedScores[playerIndex] -= 1;
+        updatedScores[activePlayer] -= 1;
         break;
       case "tứ quý":
-        updatedScores[playerIndex] += 3;
+        updatedScores[activePlayer] += 3;
         updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 1;
+          if (idx !== activePlayer) updatedScores[idx] -= 1;
         });
         break;
       case "2K":
-        updatedScores[playerIndex] += 6;
+        updatedScores[activePlayer] += 6;
         updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 2;
+          if (idx !== activePlayer) updatedScores[idx] -= 2;
         });
         break;
       case "3K":
-        updatedScores[playerIndex] += 9;
+        updatedScores[activePlayer] += 9;
         updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 3;
+          if (idx !== activePlayer) updatedScores[idx] -= 3;
         });
         break;
       case "4K":
-        updatedScores[playerIndex] += 30;
+        updatedScores[activePlayer] += 30;
         updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 10;
+          if (idx !== activePlayer) updatedScores[idx] -= 10;
         });
         break;
       case "Ù":
-        updatedScores[playerIndex] += 15;
+        updatedScores[activePlayer] += 15;
         updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 5;
+          if (idx !== activePlayer) updatedScores[idx] -= 5;
         });
         break;
       case "ù tròn":
-        updatedScores[playerIndex] += 30;
+        updatedScores[activePlayer] += 30;
         updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 10;
+          if (idx !== activePlayer) updatedScores[idx] -= 10;
+        });
+        break;
+      case "ù khan":
+        updatedScores[activePlayer] += 12;
+        updatedScores.forEach((_, idx) => {
+          if (idx !== activePlayer) updatedScores[idx] -= 4;
         });
         break;
       case "cháy":
-        updatedScores[playerIndex] -= 4;
+        updatedScores[activePlayer] -= 4;
         break;
-      case "ù 40k":
-        updatedScores[playerIndex] += 12;
-        updatedScores.forEach((_, idx) => {
-          if (idx !== playerIndex) updatedScores[idx] -= 4;
-        });
+  
+      case "nhất":
+        setNhatPlayer(activePlayer); // Gán người chơi "nhất"
+        updatedScores[activePlayer] += 6
+        break;
+      case "nhì":
+        updatedScores[activePlayer] -= 1;
+        break;
+      case "ba":
+        updatedScores[activePlayer] -= 2;
+        break;
+      case "chót":
+        updatedScores[activePlayer] -= 3;
         break;
       default:
         break;
     }
+  
+    // Cập nhật điểm của "nhất" nếu đã được đặt
+    if (nhatPlayer !== null) {
+      const burnedPlayers = updatedScores.filter((score) => score === -4).length;
+      let bonus = 6;
+      if (burnedPlayers === 1) bonus = 7;
+      else if (burnedPlayers === 2) bonus = 9;
+      else if (burnedPlayers === 3) bonus = 12;
+      updatedScores[nhatPlayer] = bonus;
+    }
+  
     setRoundScores(updatedScores);
   };
+  
+  
 
   const handleChange = (index, value) => {
     if (/^-?\d*$/.test(value)) {
@@ -210,14 +263,10 @@ const RoundInput = ({ players, onSubmit }) => {
       setRoundScores(updatedScores);
     }
   };
+
   const handleReset = () => {
     setRoundScores(players.map(() => 0)); // Reset all scores to 0
-  };
-
-  const handleIncrement = (index, amount) => {
-    const updatedScores = [...roundScores];
-    updatedScores[index] += amount;
-    setRoundScores(updatedScores);
+    setActivePlayer(null); // Reset người chơi được chọn
   };
 
   const handleSubmit = () => {
@@ -228,6 +277,7 @@ const RoundInput = ({ players, onSubmit }) => {
 
   return (
     <div>
+      {/* Button Nhập điểm bên ngoài popup */}
       <Button onClick={() => setIsPopupOpen(true)} style={{ marginTop: 10 }}>
         Nhập điểm
       </Button>
@@ -236,42 +286,55 @@ const RoundInput = ({ players, onSubmit }) => {
           <div className="popup">
             <h3>Nhập điểm</h3>
             {players.map((player, idx) => (
-              <div key={idx} className="input-group">
+              <div
+                key={idx}
+                className={`input-group ${
+                  activePlayer === idx ? "active" : ""
+                }`}
+                onClick={() => setActivePlayer(idx)} // Chọn người chơi
+                style={{
+                  border: activePlayer === idx ? "2px solid blue" : "none",
+                  padding: "5px",
+                  cursor: "pointer",
+                }}
+              >
                 <label>{player}</label>
                 <div className="input-container">
-                  <div className="">
-                    <Button onClick={() => handleIncrement(idx, -1)}>-</Button>
-                    <input
-                      type="text"
-                      value={roundScores[idx]}
-                      onChange={(e) => handleChange(idx, e.target.value)}
-                    />
-                    <Button onClick={() => handleIncrement(idx, 1)}>+</Button>
-                  </div>
-                   <div className="button_wrapper">
-                    {specialButtons.map(({ label, type }, i) => (
-                      <Button
-                        key={i}
-                        onClick={() => handleSpecialScore(idx, type)}
-                        style={{ margin: "5px" }}
-                      >
-                        {label}
-                      </Button>
-                    ))}
-                   </div>
+                  <input
+                    type="text"
+                    value={roundScores[idx]}
+                    onChange={(e) => handleChange(idx, e.target.value)}
+                  />
                 </div>
               </div>
             ))}
-            <Button
-              onClick={handleSubmit}
-              style={{ marginRight: 10, marginTop: 10 }}
-            >
-              Xác nhận
-            </Button>
-            <Button onClick={handleReset} style={{ marginRight: 10 }}>
+
+            {/* Danh sách button chỉ áp dụng cho activePlayer */}
+            <div className="button-wrapper" style={{ marginTop: "20px" }}>
+              {specialButtons.map(({ label, type }, i) => (
+                <Button
+                  key={i}
+                  onClick={() => handleSpecialScore(type)}
+                  style={{ margin: "5px" }}
+                  disabled={activePlayer === null} // Chỉ cho phép khi có người được chọn
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <Button
+                onClick={handleSubmit}
+                style={{ marginRight: 10, marginTop: 10 }}
+              >
+                Xác nhận
+              </Button>
+              <Button onClick={handleReset} style={{ marginRight: 10 }}>
                 Reset
               </Button>
-            <Button onClick={() => setIsPopupOpen(false)}>Hủy</Button>
+              <Button onClick={() => setIsPopupOpen(false)}>Hủy</Button>
+            </div>
           </div>
         </div>
       )}
