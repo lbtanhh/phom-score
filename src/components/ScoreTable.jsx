@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "antd";
 import { RoundRow } from "./RoundRow";
 import { specialButtons } from "../constants/button";
 import { RoundInput } from "./RoundInput";
-
 
 const ScoreTable = ({ players }) => {
   const [playerNames, setPlayerNames] = useState(players);
   const [scores, setScores] = useState(players.map(() => 0));
   const [rounds, setRounds] = useState([]);
 
+  useEffect(() => {
+    localStorage.setItem("scores", JSON.stringify(scores));
+  }, [scores]);
+
+  localStorage.setItem("playerNames", JSON.stringify(playerNames));
 
   const handleAddRound = (roundScores) => {
     const updatedScores = scores.map((score, idx) => score + roundScores[idx]);
@@ -50,9 +54,10 @@ const ScoreTable = ({ players }) => {
         <thead>
           <tr>
             <th></th>
-            {playerNames.map((name, idx) => <th key={idx}>{name}</th>)}
-            <th>
-            </th>
+            {playerNames.map((name, idx) => (
+              <th key={idx}>{name}</th>
+            ))}
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -66,7 +71,15 @@ const ScoreTable = ({ players }) => {
               onDelete={handleDeleteRound}
             />
           ))}
-          <tr className="total-row">
+          <tr
+            className="total-row"
+            style={{
+              color:
+                scores.reduce((total, score) => total + score, 0) !== 0
+                  ? "red"
+                  : "inherit",
+            }}
+          >
             <td>Tổng</td>
             {scores.map((score, idx) => (
               <td key={idx}>{score}</td>
@@ -80,6 +93,5 @@ const ScoreTable = ({ players }) => {
     </div>
   );
 };
-
 
 export default ScoreTable;
